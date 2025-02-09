@@ -1,5 +1,6 @@
 ESX = exports.es_extended.getSharedObject()
 local rodProp = nil
+local disableX = false
 
 startMinigame = function (shakeIntensity)
     if not shakeIntensity then shakeIntensity = 6 end
@@ -47,11 +48,14 @@ exports('wedka', function ()
     
     ESX.ShowNotification('Zaczynasz łowienie, poczekaj aż ryby zaczną brać!')
     local random = math.random(1000,50000)
-	Wait(random)
+    Wait(random)
     startFishing()
 end)
 
 function anim(toggle)
+    disableX = toggle
+    FreezeEntityPosition(PlayerPedId(), toggle)
+
     if toggle == true then
         TaskStartScenarioInPlace(PlayerPedId(), "WORLD_HUMAN_STAND_FISHING", 0, true)
     elseif toggle == false then
@@ -75,11 +79,10 @@ function startFishing()
             
             if success then
                 ESX.ShowNotification('Złowiłeś rybę!')
-            else
-                ESX.ShowNotification('Nie złowiłeś ryby!')
             end
         end, GetRandomFish(), IsNearWater())
     else
+	anim(false)
         ESX.ShowNotification('Nie złowiłeś ryby!')
     end
 end
@@ -105,7 +108,6 @@ function GetRandomFish()
         end
     end
 end
-
 
 function IsNearWater()
 	local coords, forward = GetEntityCoords(PlayerPedId()), GetEntityForwardVector(PlayerPedId())
@@ -141,6 +143,15 @@ function IsNearWater()
 
     return false
 end
+
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(0)
+        if disableX then
+            DisableControlAction(0, 73, true)
+        end
+    end
+end)
 
 lib.registerContext({
     id = 'sklep',
