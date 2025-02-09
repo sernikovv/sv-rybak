@@ -1,10 +1,24 @@
 ESX = exports.es_extended.getSharedObject()
+local ryby = {
+    'fish_sum',
+    'fish_okon',
+    'fish_mintaj',
+    'fish_losos',
+    'fish_szczupak',
+    'fish_jesiotr'
+}
 
 ESX.RegisterServerCallback('sv-rybak:giveFish', function(source, cb, fish, nearWater)
     if nearWater then
-        exports.ox_inventory:AddItem(source, fish, 1)
-        cb(true)
+        if lib.table.contains(ryby, fish) then
+            exports.ox_inventory:AddItem(source, fish, 1)
+            cb(true)
+        else
+            DropPlayer(source, '[SV-AC] Trigger event exploit')
+            cb(false)
+        end
     else
+        DropPlayer(source, '[SV-AC] Trigger event exploit')
         cb(false)
     end
 end)
@@ -30,5 +44,7 @@ RegisterNetEvent('sv-rybak:shop', function(fish, mode)
             exports.ox_inventory:RemoveItem(source, 'money', fishData.price)
             exports.ox_inventory:AddItem(source, 'wedka', 1)
         end
+    else
+        DropPlayer(source, '[SV-AC] Trigger event exploit')
     end
 end)
